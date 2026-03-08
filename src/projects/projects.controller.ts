@@ -1,12 +1,12 @@
 import { Controller, Get } from '@nestjs/common';
+import { ProjectsService } from './projects.service';
 
 @Controller('projects')
 export class ProjectsController {
+    constructor (private readonly projectsService: ProjectsService) {}
+
     @Get()
     findAll() {
-        return [
-            {id: 1, name: "Site vitrine", client: "Dupont SARL", status: "in_progress"},
-            {id: 2, name: "App mobile", client: "StartupXYZ", status: "done"},
-        ]
+        return this.projectsService.findAll();
     }
 }
