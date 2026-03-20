@@ -29,6 +29,19 @@ model Project {
   status    String   @default("in_progress")
   userId    Int
   user      User     @relation(fields: [userId], references: [id])
+  steps     Step[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Step {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  status      String   @default("pending")
+  order       Int
+  projectId   Int
+  project     Project  @relation(fields: [projectId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
