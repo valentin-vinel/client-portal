@@ -8,12 +8,15 @@ export class ProjectsService {
   constructor(private prismaService: PrismaService) {}
 
   findAll() {
-    return this.prismaService.project.findMany();
+    return this.prismaService.project.findMany({
+      include: { user: { select: { id: true, email: true, role: true } } },
+    });
   }
 
   findOne(id: number) {
     return this.prismaService.project.findUnique({
       where: { id },
+      include: { user: { select: { id: true, email: true, role: true } } },
     });
   }
 
