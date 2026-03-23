@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
@@ -14,28 +14,23 @@ export class ReportsService {
     });
   }
 
-  findOne(id: number) {
-    return this.prismaService.report.findUnique({
-      where: { id },
-    });
+  async findOne(id: number) {
+    const report = await this.prismaService.report.findUnique({ where: { id } });
+    if (!report) throw new NotFoundException(`Compte rendu ${id} introuvable`);
+    return report;
   }
 
   create(dto: CreateReportDto) {
-    return this.prismaService.report.create({
-      data: dto,
-    });
+    return this.prismaService.report.create({ data: dto });
   }
 
-  update(id: number, dto: UpdateReportDto) {
-    return this.prismaService.report.update({
-      where: { id },
-      data: dto,
-    });
+  async update(id: number, dto: UpdateReportDto) {
+    await this.findOne(id);
+    return this.prismaService.report.update({ where: { id }, data: dto });
   }
 
-  remove(id: number) {
-    return this.prismaService.report.delete({
-      where: { id },
-    });
+  async remove(id: number) {
+    await this.findOne(id);
+    return this.prismaService.report.delete({ where: { id } });
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
@@ -21,16 +21,20 @@ export class ProjectsService {
     
   }
 
-  findOne(id: number) {
-    return this.prismaService.project.findUnique({
+  async findOne(id: number) {
+    const project = await this.prismaService.project.findUnique({
       where: { id },
-      include: { 
+      include: {
         user: { select: { id: true, email: true, role: true } },
         steps: { orderBy: { order: 'asc' } },
         reports: { orderBy: { createdAt: 'desc' } },
         documents: { orderBy: { createdAt: 'desc' } },
       },
     });
+
+    if (!project) throw new NotFoundException(`Projet ${id} introuvable`);
+
+    return project;
   }
 
   create(dto: CreateProjectDto) {
@@ -39,16 +43,13 @@ export class ProjectsService {
     });
   }
 
-  update(id: number, dto: UpdateProjectDto) {
-    return this.prismaService.project.update({
-      where: { id },
-      data: dto,
-    });
+  async update(id: number, dto: UpdateProjectDto) {
+    await this.findOne(id);
+    return this.prismaService.project.update({ where: { id }, data: dto });
   }
 
-  remove(id: number) {
-    return this.prismaService.project.delete({
-      where: { id },
-    });
+  async remove(id: number) {
+    await this.findOne(id);
+    return this.prismaService.project.delete({ where: { id } });
   }
 }

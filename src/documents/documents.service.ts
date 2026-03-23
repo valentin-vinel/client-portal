@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
@@ -14,28 +14,23 @@ export class DocumentsService {
     });
   }
 
-  findOne(id: number) {
-    return this.prismaService.document.findUnique({
-      where: { id },
-    });
+  async findOne(id: number) {
+    const document = await this.prismaService.document.findUnique({ where: { id } });
+    if (!document) throw new NotFoundException(`Document ${id} introuvable`);
+    return document;
   }
 
   create(dto: CreateDocumentDto) {
-    return this.prismaService.document.create({
-      data: dto,
-    });
+    return this.prismaService.document.create({ data: dto });
   }
 
-  update(id: number, dto: UpdateDocumentDto) {
-    return this.prismaService.document.update({
-      where: { id },
-      data: dto,
-    });
+  async update(id: number, dto: UpdateDocumentDto) {
+    await this.findOne(id);
+    return this.prismaService.document.update({ where: { id }, data: dto });
   }
 
-  remove(id: number) {
-    return this.prismaService.document.delete({
-      where: { id },
-    });
+  async remove(id: number) {
+    await this.findOne(id);
+    return this.prismaService.document.delete({ where: { id } });
   }
 }
