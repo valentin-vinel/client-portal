@@ -28,6 +28,7 @@ export class ProjectsService {
         user: { select: { id: true, email: true, role: true } },
         steps: { orderBy: { order: 'asc' } },
         reports: { orderBy: { createdAt: 'desc' } },
+        documents: { orderBy: { createdAt: 'desc' } },
       },
     });
   }

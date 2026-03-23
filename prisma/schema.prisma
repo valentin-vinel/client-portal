@@ -31,6 +31,7 @@ model Project {
   user      User     @relation(fields: [userId], references: [id])
   steps     Step[]
   reports   Report[]
+  documents Document[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -51,6 +52,17 @@ model Report {
   id        Int      @id @default(autoincrement())
   title     String
   content   String
+  projectId Int
+  project   Project  @relation(fields: [projectId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Document {
+  id        Int      @id @default(autoincrement())
+  name      String
+  url       String
+  type      String
   projectId Int
   project   Project  @relation(fields: [projectId], references: [id])
   createdAt DateTime @default(now())
