@@ -7,10 +7,18 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 export class ProjectsService {
   constructor(private prismaService: PrismaService) {}
 
-  findAll() {
+  findAll(userId: number, role: string) {
+    if (role === 'admin') {
+      return this.prismaService.project.findMany({
+        include: { user: { select: { id: true, email: true, role: true } } },
+      });
+    }
+
     return this.prismaService.project.findMany({
+      where: { userId },
       include: { user: { select: { id: true, email: true, role: true } } },
-    });
+    })
+    
   }
 
   findOne(id: number) {
@@ -19,6 +27,7 @@ export class ProjectsService {
       include: { 
         user: { select: { id: true, email: true, role: true } },
         steps: { orderBy: { order: 'asc' } },
+        reports: { orderBy: { createdAt: 'desc' } },
       },
     });
   }
