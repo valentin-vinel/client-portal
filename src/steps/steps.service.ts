@@ -2,16 +2,30 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CreateStepDto } from './dto/create-step.dto';
 import { UpdateStepDto } from './dto/update-step.dto';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Injectable()
 export class StepsService {
   constructor(private prismaService: PrismaService) {}
 
-  findByProject(projectId: number) {
-    return this.prismaService.step.findMany({
-      where: { projectId },
-      orderBy: { order: 'asc' },
-    });
+  async findByProject(projectId: number, pagination: PaginationDto) {
+    const { page = 1, limit = 10 } = pagination;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prismaService.step.findMany({
+        where: { projectId },
+        skip,
+        take: limit,
+        orderBy: { order: 'asc' },
+      }),
+      this.prismaService.step.count({ where: { projectId } }),
+    ]);
+
+    return {
+      data,
+      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
+    };
   }
 
   create(dto: CreateStepDto) {

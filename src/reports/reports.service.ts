@@ -2,16 +2,30 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Injectable()
 export class ReportsService {
   constructor(private prismaService: PrismaService) {}
 
-  findByProject(projectId: number) {
-    return this.prismaService.report.findMany({
-      where: { projectId },
-      orderBy: { createdAt: 'desc' },
-    });
+  async findByProject(projectId: number, pagination: PaginationDto) {
+    const { page = 1, limit = 10 } = pagination;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prismaService.report.findMany({
+        where: { projectId },
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prismaService.report.count({ where: { projectId } }),
+    ]);
+
+    return {
+      data,
+      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
+    };
   }
 
   async findOne(id: number) {
