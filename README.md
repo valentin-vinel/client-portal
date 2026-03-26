@@ -1,4 +1,6 @@
 # Client Portal
+
+![CI](https://github.com/valentin-vinel/client-portal/actions/workflows/ci.yml/badge.svg)
  
 API REST permettant le suivi de projet en temps réel pour les freelances. Les clients se connectent et accèdent aux étapes du projet, aux documents, aux comptes rendus et aux livrables.
  
@@ -15,12 +17,13 @@ Projet personnel, stack orientée backend/ops : NestJS, PostgreSQL, Prisma 7, Do
 | Authentification | JWT + Passport |
 | Validation | class-validator |
 | Conteneurisation | Docker / Docker Compose |
-| CI/CD | GitHub Actions *(à venir)* |
+| Tests | Jest (unitaires + e2e) |
+| CI/CD | GitHub Actions |
 | Cloud | AWS ECS, RDS, S3 *(à venir)* |
  
 ## Prérequis
  
-- Node.js >= 18
+- Node.js >= 20
 - Docker Desktop
 - npm
  
@@ -77,6 +80,8 @@ npm run start:dev
 ```
  
 Le serveur est accessible sur `http://localhost:3000`.
+
+La documentation Swagger est accessible sur `http://localhost:3000/api`.
  
 ## Scripts disponibles
  
@@ -91,6 +96,40 @@ Le serveur est accessible sur `http://localhost:3000`.
 | `npx prisma studio` | Ouvre l'interface visuelle de la base de données |
 | `npx prisma migrate dev` | Crée et applique une nouvelle migration |
  
+## Tests
+ 
+Le projet inclut deux niveaux de tests, tous exécutés automatiquement par la pipeline CI.
+ 
+**Tests unitaires** — testent chaque service isolément avec des mocks Prisma :
+ 
+```bash
+npm run test
+```
+ 
+**Tests e2e** — testent l'application de bout en bout avec une vraie base PostgreSQL de test :
+ 
+```bash
+npm run test:e2e
+```
+ 
+Les tests e2e utilisent une base dédiée sur le port `5433`. Assure-toi que le container `db_test` tourne :
+ 
+```bash
+docker-compose up -d
+```
+ 
+## CI/CD
+ 
+Chaque push sur `master` ou `develop` déclenche automatiquement la pipeline GitHub Actions qui :
+ 
+1. Installe les dépendances
+2. Génère le client Prisma
+3. Lance les tests unitaires
+4. Applique les migrations sur une base de test
+5. Lance les tests e2e
+ 
+Le badge en haut du README indique l'état de la dernière pipeline.
+
 ## Structure du projet
  
 ```
@@ -107,6 +146,8 @@ src/
 │   ├── roles.decorator.ts
 │   └── roles.guard.ts
 ├── common/
+│   ├── dto/
+│   │   └── pagination.dto.ts
 │   └── filters/
 │       └── http-exception.filter.ts
 ├── documents/
@@ -143,6 +184,16 @@ src/
 prisma/
 ├── schema.prisma
 └── migrations/
+test/
+├── auth.e2e-spec.ts
+├── projects.e2e-spec.ts
+├── steps.e2e-spec.ts
+├── reports.e2e-spec.ts
+├── documents.e2e-spec.ts
+└── jest-e2e.json
+.github/
+└── workflows/
+    └── ci.yml
 docker-compose.yml
 prisma.config.ts
 ```
@@ -236,12 +287,12 @@ Document
 - [x] Comptes rendus mensuels
 - [x] Documents liés aux projets
 - [x] Gestion des erreurs HTTP propres
-- [ ] Pagination sur les listes
+- [x] Pagination sur toutes les listes
+- [x] Documentation Swagger
+- [x] Tests unitaires (37 tests)
+- [x] Tests e2e (30 tests)
+- [x] CI/CD GitHub Actions
 - [ ] Upload de fichiers réels (AWS S3)
-- [ ] Documentation Swagger
-- [ ] Tests unitaires
-- [ ] Tests d'intégration (e2e)
-- [ ] CI/CD GitHub Actions
 - [ ] Déploiement AWS (ECS, RDS, S3)
 - [ ] Front-end Next.js
  
