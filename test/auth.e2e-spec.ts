@@ -28,8 +28,11 @@ describe('Auth (e2e)', () => {
   });
 
   afterAll(async () => {
-    await prismaService.user.deleteMany();
+    await prismaService.document.deleteMany();
+    await prismaService.report.deleteMany();
+    await prismaService.step.deleteMany();
     await prismaService.project.deleteMany();
+    await prismaService.user.deleteMany();
     await app.close();
   });
 
