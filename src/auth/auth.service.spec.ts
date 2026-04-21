@@ -47,7 +47,10 @@ describe('AuthService', () => {
         password: 'motdepasse123',
       });
 
-      expect(result).toEqual({ access_token: 'mock_token' });
+      expect(result).toEqual({
+        access_token: 'mock_token',
+        user: { id: 1, email: 'test@test.com', role: 'client' },
+      });
     });
 
     it('lève une ConflictException si l\'email existe déjà', async () => {
@@ -74,7 +77,10 @@ describe('AuthService', () => {
         password: 'motdepasse123',
       });
 
-      expect(result).toEqual({ access_token: 'mock_token' });
+      expect(result).toEqual({
+        access_token: 'mock_token',
+        user: { id: 1, email: 'test@test.com', role: 'client' },
+      });
     });
 
     it('lève une UnauthorizedException si l\'email n\'existe pas', async () => {
