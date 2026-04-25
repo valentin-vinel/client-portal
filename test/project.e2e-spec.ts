@@ -1,6 +1,3 @@
-process.env.DATABASE_URL = 'postgresql://postgres:postgres@localhost:5433/client_portal_test';
-process.env.JWT_SECRET = 'secret_test';
-
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
@@ -38,7 +35,7 @@ describe('Projects (e2e)', () => {
 
     await prismaService.user.updateMany({
       where: { email: 'admin-projects@test.com' },
-      data: { role: 'admin' },
+      data: { role: 'admin', isActive: true },
     });
 
     const adminRes = await request(app.getHttpServer())
@@ -47,8 +44,17 @@ describe('Projects (e2e)', () => {
 
     adminToken = adminRes.body.access_token;
 
-    const clientRes = await request(app.getHttpServer())
+    await request(app.getHttpServer())
       .post('/auth/register')
+      .send({ email: 'client-projects@test.com', password: 'motdepasse123' });
+
+    await prismaService.user.updateMany({
+      where: { email: 'client-projects@test.com' },
+      data: { isActive: true },
+    });
+
+    const clientRes = await request(app.getHttpServer())
+      .post('/auth/login')
       .send({ email: 'client-projects@test.com', password: 'motdepasse123' });
 
     clientToken = clientRes.body.access_token;
