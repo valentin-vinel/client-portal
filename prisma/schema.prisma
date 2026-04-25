@@ -13,13 +13,20 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  role      String   @default("client")
-  projects  Project[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                    Int       @id @default(autoincrement())
+  email                 String    @unique
+  password              String?
+  role                  String    @default("client")
+  firstName             String?
+  lastName              String?
+  company               String?
+  phone                 String?
+  isActive              Boolean   @default(false)
+  invitationToken       String?   @unique
+  invitationTokenExpiry DateTime?
+  projects              Project[]
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 }
 
 model Project {

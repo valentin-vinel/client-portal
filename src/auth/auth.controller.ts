@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { SetPasswordDto } from './dto/set-password.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -23,5 +24,13 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Identifiants invalides' })
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
+  }
+
+  @Post('set-password')
+  @ApiOperation({ summary: 'Activer le compte avec le token d\'invitation' })
+  @ApiResponse({ status: 201, description: 'Compte activé, retourne un JWT' })
+  @ApiResponse({ status: 401, description: 'Token invalide ou expiré' })
+  setPassword(@Body() dto: SetPasswordDto) {
+    return this.authService.setPassword(dto);
   }
 }
